@@ -25,7 +25,10 @@ class RetrofitBuilder(application: Application) {
 
                         .addHeader("Access-Control-Allow-Origin", "*")
                         .addHeader("Access-Control-Allow-Methods", "GET,POST,PUT, OPTIONS")
-
+                        .addHeader("Access-Control-Allow-Headers", "Content-Type")
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("X-Salt-Key", "T5G1YRJTIU4E")
+                        .addHeader("X-Session-Token", "klbQPj6x")
                         .method(original.method, original.body)
                     val request: Request = requestBuilder.build()
 
@@ -51,7 +54,7 @@ class RetrofitBuilder(application: Application) {
 
     companion object {
 
-        const val BASEURL = "https://api.github.com/"
+        const val BASEURL = "http://dev.nonames.com/api/"
 
         @Volatile
         private var mInstance: RetrofitBuilder? = null

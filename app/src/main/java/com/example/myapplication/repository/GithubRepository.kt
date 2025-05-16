@@ -7,6 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.api.ApiInterface
 import com.example.myapplication.api.ApiResponse
+import com.example.myapplication.model.CityRequest
+import com.example.myapplication.model.CityResponse
 import com.example.myapplication.model.MyError
 import com.example.myapplication.model.github.GithubResponseItem
 import com.google.gson.Gson
@@ -51,6 +53,45 @@ class GithubRepository(
             _repoLiveData.postValue(ApiResponse.Error("Exception: ${e.message}"))
             print("Exception: ${e.message}")
 
+        }
+    }
+
+    private  val _launchCityLiveData = MutableLiveData<ApiResponse<CityResponse>>()
+    val launchCityLiveData: LiveData<ApiResponse<CityResponse>>
+        get() = _launchCityLiveData
+
+    suspend fun launchCity(cityRequest: CityRequest){
+
+        _launchCityLiveData.postValue(ApiResponse.Loading())
+        try {
+
+            val response = apiInterface.launchCity(cityRequest)
+            print("Response: ${response.body()}")
+
+
+            if (response.isSuccessful && response.body() != null) {
+                _launchCityLiveData.postValue(ApiResponse.Success(response.body()))
+            } else {
+                val errorBody = response.errorBody()?.string()
+                if (errorBody != null) {
+                    val errorResponse: MyError = Gson().fromJson(
+                        errorBody, object : TypeToken<MyError>() {}.type
+                    )
+                    print("Response: ${errorResponse.message}")
+
+                    _launchCityLiveData.postValue(ApiResponse.Error(errorResponse.message))
+                } else {
+                    _launchCityLiveData.postValue(
+                        ApiResponse.Error(
+                            response.message() ?: "Something went wrong"
+                        )
+                    )
+                }
+
+            }
+
+        }catch (e: Exception){
+            _launchCityLiveData.postValue(ApiResponse.Error("Exception: ${e.message}"))
         }
     }
 }
